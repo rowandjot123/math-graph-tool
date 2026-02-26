@@ -5,117 +5,192 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body {
-  font-family: Arial;
-  text-align: center;
-  margin: 40px;
+
+body{
+  font-family:Arial;
+  margin:20px;
+  text-align:center;
 }
 
-h1 {
-  color: #003366;
+.container{
+  max-width:900px;
+  margin:auto;
 }
 
-button {
-  margin: 5px;
-  padding: 8px 12px;
-  cursor: pointer;
+h1{
+  color:#003366;
 }
 
-input {
-  padding: 8px;
-  width: 200px;
+.instructions{
+  background:#f4f6f8;
+  padding:15px;
+  border-radius:8px;
+  margin-bottom:15px;
 }
 
-footer {
-  margin-top: 30px;
-  font-size: 14px;
-  color: gray;
+input{
+  padding:8px;
+  width:220px;
 }
+
+button{
+  padding:7px 12px;
+  margin:4px;
+  cursor:pointer;
+}
+
+.chartBox{
+  height:450px;
+}
+
+footer{
+  margin-top:40px;
+  color:gray;
+  font-size:14px;
+}
+
+.category{
+  margin-top:10px;
+}
+
 </style>
-
 </head>
 
 <body>
 
+<div class="container">
+
 <h1>KMSw Graphing Tool</h1>
 
-<p><b>Created by: Mr. Rowand George</b></p>
+<div class="instructions">
+<b>This tool helps you visualize mathematical graphs.</b><br>
+Enter an equation using <b>x</b>, or click any sample below to begin.
+</div>
 
-<p>Enter equation using x. Example: 2*x, x*x, Math.sin(x)</p>
-
-<input type="text" id="equation" value="2*x">
+<input id="equation" value="2*x">
 <button onclick="drawGraph()">Draw Graph</button>
 
-<h3>Example Equations:</h3>
+<!-- FUNCTION GROUPS -->
 
-<button onclick="setEq('2*x')">y = 2x</button>
-<button onclick="setEq('x*x')">y = x²</button>
-<button onclick="setEq('Math.sin(x)')">y = sin(x)</button>
-<button onclick="setEq('Math.cos(x*x)')">y = cos(x²)</button>
-<button onclick="setEq('Math.log(x)')">y = ln(x)</button>
-<button onclick="setEq('Math.exp(-x)')">y = e⁻ˣ</button>
+<div class="category">
+<b>Linear</b><br>
+<button onclick="setEq('2*x')">y=2x</button>
+</div>
 
-<br><br>
+<div class="category">
+<b>Quadratic / Cubic</b><br>
+<button onclick="setEq('x*x')">x²</button>
+<button onclick="setEq('x*x*x')">x³</button>
+</div>
 
-<canvas id="myChart" width="700" height="400"></canvas>
+<div class="category">
+<b>Rational</b><br>
+<button onclick="setEq('1/x')">1/x</button>
+</div>
+
+<div class="category">
+<b>Exponential & Logarithmic</b><br>
+<button onclick="setEq('Math.exp(x)')">eˣ</button>
+<button onclick="setEq('Math.log(x)')">ln(x)</button>
+</div>
+
+<div class="category">
+<b>Modulus</b><br>
+<button onclick="setEq('Math.abs(x)')">|x|</button>
+</div>
+
+<div class="category">
+<b>Trigonometric</b><br>
+<button onclick="setEq('Math.sin(x)')">sin(x)</button>
+<button onclick="setEq('Math.cos(x)')">cos(x)</button>
+<button onclick="setEq('Math.tan(x)')">tan(x)</button>
+</div>
+
+<br>
+
+<div class="chartBox">
+<canvas id="myChart"></canvas>
+</div>
 
 <footer>
-Kindly contact us if any suggestion is needed to improve this graphing tool.
+Created by Mr. Rowand George • KMSw Graphing Tool
 </footer>
+
+</div>
 
 <script>
 
 let chart;
 
-function setEq(eq) {
-  document.getElementById("equation").value = eq;
-  drawGraph();
+document.getElementById("equation")
+.addEventListener("keypress",e=>{
+ if(e.key==="Enter") drawGraph();
+});
+
+function setEq(eq){
+ document.getElementById("equation").value=eq;
+ drawGraph();
 }
 
-function drawGraph() {
+function drawGraph(){
 
-  let eq = document.getElementById("equation").value;
+let eq=document.getElementById("equation").value;
 
-  let xValues = [];
-  let yValues = [];
+let xValues=[];
+let yValues=[];
 
-  for (let x = -10; x <= 10; x += 0.1) {
+for(let i=0;i<=200;i++){
+ let x=-10+i*0.1;
 
-    try {
-      xValues.push(x);
-      yValues.push(eval(eq));
-    }
-    catch {
-      yValues.push(null);
-    }
+ try{
+   let y=Function("x","return "+eq)(x);
+   xValues.push(x);
+   yValues.push(isFinite(y)?y:null);
+ }
+ catch{
+   yValues.push(null);
+ }
+}
 
-  }
+if(chart) chart.destroy();
 
-  if(chart) chart.destroy();
+chart=new Chart(
+document.getElementById("myChart"),
+{
+type:"line",
 
-  chart = new Chart(document.getElementById("myChart"), {
-    type: "line",
-    data: {
-      labels: xValues,
-      datasets: [{
-        label: "y = " + eq,
-        data: yValues,
-        borderWidth: 2,
-        pointRadius: 0
-      }]
-    },
-    options: {
-      scales: {
-        x: {
-          title: { display: true, text: "x" }
-        },
-        y: {
-          title: { display: true, text: "y" }
-        }
-      }
-    }
-  });
+data:{
+labels:xValues,
+datasets:[{
+label:"y = "+eq,
+data:yValues,
+borderWidth:2,
+pointRadius:0
+}]
+},
 
+options:{
+responsive:true,
+maintainAspectRatio:false,
+
+interaction:{mode:'index',intersect:false},
+
+scales:{
+x:{
+title:{display:true,text:"x"},
+ticks:{
+callback:v=>Number(v).toFixed(1)
+}
+},
+y:{
+title:{display:true,text:"y"},
+ticks:{
+callback:v=>Number(v).toFixed(2)
+}
+}
+}
+}
+});
 }
 
 drawGraph();
