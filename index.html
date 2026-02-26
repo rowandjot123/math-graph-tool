@@ -7,50 +7,58 @@
 <style>
 
 body{
-  font-family:Arial;
-  margin:20px;
-  text-align:center;
+font-family:Arial;
+margin:15px;
+text-align:center;
 }
 
 .container{
-  max-width:900px;
-  margin:auto;
-}
-
-h1{
-  color:#003366;
+max-width:1000px;
+margin:auto;
 }
 
 .instructions{
-  background:#f4f6f8;
-  padding:15px;
-  border-radius:8px;
-  margin-bottom:15px;
+background:#f4f6f8;
+padding:10px;
+border-radius:8px;
+margin-bottom:10px;
+font-size:15px;
 }
 
-input{
-  padding:8px;
-  width:220px;
-}
-
-button{
-  padding:7px 12px;
-  margin:4px;
-  cursor:pointer;
-}
-
-.chartBox{
-  height:450px;
-}
-
-footer{
-  margin-top:40px;
-  color:gray;
-  font-size:14px;
+/* GRID FOR BUTTONS */
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+gap:8px;
+margin:10px 0;
 }
 
 .category{
-  margin-top:10px;
+background:#fafafa;
+padding:8px;
+border-radius:6px;
+}
+
+button{
+padding:6px 10px;
+margin:3px;
+cursor:pointer;
+font-size:13px;
+}
+
+input{
+padding:8px;
+width:240px;
+}
+
+.chartBox{
+height:380px;
+}
+
+footer{
+margin-top:15px;
+font-size:13px;
+color:gray;
 }
 
 </style>
@@ -60,27 +68,30 @@ footer{
 
 <div class="container">
 
-<h1>KMSw Graphing Tool</h1>
+<h2>KMSw Graphing Tool</h2>
 
 <div class="instructions">
-<b>This tool helps you visualize mathematical graphs.</b><br>
-Enter an equation using <b>x</b>, or click any sample below to begin.
+Visualize mathematical graphs instantly.<br>
+Type equation using <b>x</b> or click examples below.<br>
+Examples: <b>sin(x), x^2, sqrt(x), 1/x</b>
 </div>
 
 <input id="equation" value="2*x">
 <button onclick="drawGraph()">Draw Graph</button>
 
-<!-- FUNCTION GROUPS -->
+<!-- RESPONSIVE GRID -->
+<div class="grid">
 
 <div class="category">
 <b>Linear</b><br>
-<button onclick="setEq('2*x')">y=2x</button>
+<button onclick="setEq('2*x')">2x</button>
+<button onclick="setEq('x-3')">x−3</button>
 </div>
 
 <div class="category">
-<b>Quadratic / Cubic</b><br>
-<button onclick="setEq('x*x')">x²</button>
-<button onclick="setEq('x*x*x')">x³</button>
+<b>Quadratic</b><br>
+<button onclick="setEq('x^2')">x²</button>
+<button onclick="setEq('x^3')">x³</button>
 </div>
 
 <div class="category">
@@ -89,24 +100,34 @@ Enter an equation using <b>x</b>, or click any sample below to begin.
 </div>
 
 <div class="category">
-<b>Exponential & Logarithmic</b><br>
-<button onclick="setEq('Math.exp(x)')">eˣ</button>
-<button onclick="setEq('Math.log(x)')">ln(x)</button>
+<b>Roots</b><br>
+<button onclick="setEq('sqrt(x)')">√x</button>
+<button onclick="setEq('x^(1/2)')">x^(1/2)</button>
+</div>
+
+<div class="category">
+<b>Exponential</b><br>
+<button onclick="setEq('exp(x)')">e^x</button>
+</div>
+
+<div class="category">
+<b>Logarithmic</b><br>
+<button onclick="setEq('ln(x)')">ln(x)</button>
 </div>
 
 <div class="category">
 <b>Modulus</b><br>
-<button onclick="setEq('Math.abs(x)')">|x|</button>
+<button onclick="setEq('abs(x)')">|x|</button>
 </div>
 
 <div class="category">
 <b>Trigonometric</b><br>
-<button onclick="setEq('Math.sin(x)')">sin(x)</button>
-<button onclick="setEq('Math.cos(x)')">cos(x)</button>
-<button onclick="setEq('Math.tan(x)')">tan(x)</button>
+<button onclick="setEq('sin(x)')">sin</button>
+<button onclick="setEq('cos(x)')">cos</button>
+<button onclick="setEq('tan(x)')">tan</button>
 </div>
 
-<br>
+</div>
 
 <div class="chartBox">
 <canvas id="myChart"></canvas>
@@ -122,34 +143,50 @@ Created by Mr. Rowand George • KMSw Graphing Tool
 
 let chart;
 
+/* ENTER KEY */
 document.getElementById("equation")
 .addEventListener("keypress",e=>{
- if(e.key==="Enter") drawGraph();
+if(e.key==="Enter") drawGraph();
 });
 
+/* STUDENT MATH → JS */
+function parseEquation(eq){
+
+return eq
+.replace(/\^/g,"**")
+.replace(/sin/g,"Math.sin")
+.replace(/cos/g,"Math.cos")
+.replace(/tan/g,"Math.tan")
+.replace(/ln/g,"Math.log")
+.replace(/exp/g,"Math.exp")
+.replace(/sqrt/g,"Math.sqrt")
+.replace(/abs/g,"Math.abs");
+}
+
 function setEq(eq){
- document.getElementById("equation").value=eq;
- drawGraph();
+document.getElementById("equation").value=eq;
+drawGraph();
 }
 
 function drawGraph(){
 
-let eq=document.getElementById("equation").value;
+let raw=document.getElementById("equation").value;
+let eq=parseEquation(raw);
 
 let xValues=[];
 let yValues=[];
 
 for(let i=0;i<=200;i++){
- let x=-10+i*0.1;
+let x=-10+i*0.1;
 
- try{
-   let y=Function("x","return "+eq)(x);
-   xValues.push(x);
-   yValues.push(isFinite(y)?y:null);
- }
- catch{
-   yValues.push(null);
- }
+try{
+let y=Function("x","return "+eq)(x);
+xValues.push(x);
+yValues.push(isFinite(y)?y:null);
+}
+catch{
+yValues.push(null);
+}
 }
 
 if(chart) chart.destroy();
@@ -158,36 +195,21 @@ chart=new Chart(
 document.getElementById("myChart"),
 {
 type:"line",
-
 data:{
 labels:xValues,
 datasets:[{
-label:"y = "+eq,
+label:"y = "+raw,
 data:yValues,
-borderWidth:2,
-pointRadius:0
+pointRadius:0,
+borderWidth:2
 }]
 },
-
 options:{
 responsive:true,
 maintainAspectRatio:false,
-
-interaction:{mode:'index',intersect:false},
-
 scales:{
-x:{
-title:{display:true,text:"x"},
-ticks:{
-callback:v=>Number(v).toFixed(1)
-}
-},
-y:{
-title:{display:true,text:"y"},
-ticks:{
-callback:v=>Number(v).toFixed(2)
-}
-}
+x:{ticks:{callback:v=>Number(v).toFixed(1)}},
+y:{ticks:{callback:v=>Number(v).toFixed(2)}}
 }
 }
 });
