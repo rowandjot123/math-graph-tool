@@ -1,25 +1,76 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Mathematics Graph Tool</title>
+<title>KMSw Graphing Tool</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+  font-family: Arial;
+  text-align: center;
+  margin: 40px;
+}
+
+h1 {
+  color: #003366;
+}
+
+button {
+  margin: 5px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+input {
+  padding: 8px;
+  width: 200px;
+}
+
+footer {
+  margin-top: 30px;
+  font-size: 14px;
+  color: gray;
+}
+</style>
+
 </head>
 
 <body>
 
-<h2>Mathematics Graph Tool</h2>
-<p>Enter function (example: 2*x, x*x, Math.sin(x))</p>
+<h1>KMSw Graphing Tool</h1>
+
+<p><b>Created by: Mr. Rowand George</b></p>
+
+<p>Enter equation using x. Example: 2*x, x*x, Math.sin(x)</p>
 
 <input type="text" id="equation" value="2*x">
 <button onclick="drawGraph()">Draw Graph</button>
 
+<h3>Example Equations:</h3>
+
+<button onclick="setEq('2*x')">y = 2x</button>
+<button onclick="setEq('x*x')">y = x²</button>
+<button onclick="setEq('Math.sin(x)')">y = sin(x)</button>
+<button onclick="setEq('Math.cos(x*x)')">y = cos(x²)</button>
+<button onclick="setEq('Math.log(x)')">y = ln(x)</button>
+<button onclick="setEq('Math.exp(-x)')">y = e⁻ˣ</button>
+
 <br><br>
 
-<canvas id="myChart" width="600" height="400"></canvas>
+<canvas id="myChart" width="700" height="400"></canvas>
+
+<footer>
+Kindly contact us if any suggestion is needed to improve this graphing tool.
+</footer>
 
 <script>
 
 let chart;
+
+function setEq(eq) {
+  document.getElementById("equation").value = eq;
+  drawGraph();
+}
 
 function drawGraph() {
 
@@ -28,9 +79,16 @@ function drawGraph() {
   let xValues = [];
   let yValues = [];
 
-  for (let x = -10; x <= 10; x++) {
-    xValues.push(x);
-    yValues.push(eval(eq));
+  for (let x = -10; x <= 10; x += 0.1) {
+
+    try {
+      xValues.push(x);
+      yValues.push(eval(eq));
+    }
+    catch {
+      yValues.push(null);
+    }
+
   }
 
   if(chart) chart.destroy();
@@ -41,8 +99,20 @@ function drawGraph() {
       labels: xValues,
       datasets: [{
         label: "y = " + eq,
-        data: yValues
+        data: yValues,
+        borderWidth: 2,
+        pointRadius: 0
       }]
+    },
+    options: {
+      scales: {
+        x: {
+          title: { display: true, text: "x" }
+        },
+        y: {
+          title: { display: true, text: "y" }
+        }
+      }
     }
   });
 
