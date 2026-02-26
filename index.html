@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Mathematics Graph Tool</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<h2>Mathematics Graph Tool</h2>
+<p>Enter function (example: 2*x, x*x, Math.sin(x))</p>
+
+<input type="text" id="equation" value="2*x">
+<button onclick="drawGraph()">Draw Graph</button>
+
+<br><br>
+
+<canvas id="myChart" width="600" height="400"></canvas>
+
+<script>
+
+let chart;
+
+function drawGraph() {
+
+  let eq = document.getElementById("equation").value;
+
+  let xValues = [];
+  let yValues = [];
+
+  for (let x = -10; x <= 10; x++) {
+    xValues.push(x);
+    yValues.push(eval(eq));
+  }
+
+  if(chart) chart.destroy();
+
+  chart = new Chart(document.getElementById("myChart"), {
+    type: "line",
+    data: {
+      labels: xValues,
+      datasets: [{
+        label: "y = " + eq,
+        data: yValues
+      }]
+    }
+  });
+
+}
+
+drawGraph();
+
+</script>
+
+</body>
+</html>
